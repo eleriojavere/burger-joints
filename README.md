@@ -1,3 +1,7 @@
+# Burger app for hungry Qminderers
+
+Test assigment project for displaying burger joints in Tartu on a map and their latest picture.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
