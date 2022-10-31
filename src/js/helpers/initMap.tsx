@@ -1,25 +1,15 @@
-export const callMapScript = () => {
-  const script = document.createElement("script");
-  script.src =
-    "https://maps.googleapis.com/maps/api/js?key=AIzaSyDuWVLOaWQdwBNoDyyqqZ7GxXrJ2cM9Lj8&callback=initMap";
-  script.async = true;
-  document.body.appendChild(script);
-};
+import { Venue } from "../interfaces/interfaces";
 
-// Callback funtion to initialize and add the map
-export function initMap() {
-  const centerLocation = { lat: 58.378, lng: 26.729 };
-
-  const map = new google.maps.Map(
-    document.getElementById("map") as HTMLElement,
-    {
-      zoom: 14,
-      center: centerLocation,
-    }
-  );
-
-  new google.maps.Marker({
-    position: centerLocation,
-    map: map,
+export const addMarkers = (map: google.maps.Map, results: Venue[]) => {
+  results.map((venue) => {
+    return new google.maps.Marker({
+      position: {
+        lat: venue.geocodes.main.latitude,
+        lng: venue.geocodes.main.longitude,
+      },
+      map: map,
+      clickable: true,
+      title: venue.name,
+    });
   });
-}
+};
