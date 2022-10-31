@@ -3,11 +3,12 @@ import { useVenues } from "../contex/VenuesContext";
 export default function Gallery() {
   const { venuePhotos } = useVenues();
 
+  console.log("venue", venuePhotos);
   return (
     <div className="gallery-container">
       {venuePhotos.map((venuePhoto) => (
-        <div className="image-wrapper">
-          <img alt="venue" key={venuePhoto.fsq_id} src={venuePhoto.url} />
+        <div key={venuePhoto.fsq_id} className="image-wrapper">
+          <img alt="venue" src={venuePhoto.url} />
         </div>
       ))}
     </div>

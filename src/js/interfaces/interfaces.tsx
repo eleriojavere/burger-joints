@@ -66,7 +66,7 @@ export interface VenuesContextInterface {
   venuePhotos: Photo[];
 }
 
-export interface VenuePhoto {
+export interface VenuePhotoApiResponse {
   id: string;
   created_at: string;
   prefix: string;

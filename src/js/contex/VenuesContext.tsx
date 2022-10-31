@@ -3,7 +3,7 @@ import {
   VenueApiResponse,
   Venue,
   VenuesContextInterface,
-  VenuePhoto,
+  VenuePhotoApiResponse,
   Photo,
 } from "../interfaces/interfaces";
 
@@ -26,6 +26,7 @@ export function VenuesProvider({ children }: { children: ReactElement }) {
 
     if (apiBaseUrl && apiKey) {
       setIsLoading(true);
+
       const options = {
         headers: {
           accept: "application/json",
@@ -33,56 +34,14 @@ export function VenuesProvider({ children }: { children: ReactElement }) {
         },
       };
 
-      const fetchData = async () => {
-        await fetch(`${apiBaseUrl}/search?query=burger&near=Tartu`, options)
-          .then((response) => response.json())
-          .then((response: VenueApiResponse) => {
-            setVenues(response.results);
-
-            // fetch image corresponding to venue fsq_id
-
-            Promise.all(
-              response.results.map((venue) => {
-                return fetch(
-                  `https://api.foursquare.com/v3/places/${venue.fsq_id}/photos?limit=1&sort=NEWEST`,
-                  options
-                )
-                  .then((response) => response.json())
-
-                  .then((response: VenuePhoto[]) => {
-                    const newestPhoto = response[0];
-                    if (newestPhoto != null) {
-                      const photoUrl = generatePhotoUrl(
-                        newestPhoto.prefix,
-                        newestPhoto.width,
-                        newestPhoto.height,
-                        newestPhoto.suffix
-                      );
-
-                      setVenuePhotos((currentPhotos) => [
-                        ...currentPhotos,
-                        { fsq_id: venue.fsq_id, url: photoUrl },
-                      ]);
-                    }
-                  })
-
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              })
-            ).then(() => {
-              setIsLoading(false);
-            });
-          })
-
-          .catch((err) => {
-            console.error(err);
-            setIsLoading(false);
-            setHasError(true);
-          });
-      };
-
-      fetchData();
+      fetchData(
+        apiBaseUrl,
+        setVenues,
+        options,
+        setVenuePhotos,
+        setIsLoading,
+        setHasError
+      );
     }
   }, []);
 
@@ -109,4 +68,60 @@ function generatePhotoUrl(
   sufix: string
 ) {
   return `${prefix}${width}x${height}${sufix}`;
+}
+
+async function fetchData(
+  apiBaseUrl: string,
+  setVenues: (response: Venue[]) => void,
+  options: { headers: { accept: string; Authorization: string } },
+  setVenuePhotos: (currentPhotos: any) => void,
+  setIsLoading: (value: boolean) => void,
+  setHasError: (value: boolean) => void
+) {
+  await fetch(`${apiBaseUrl}/search?query=burger&near=Tartu`, options)
+    .then((response) => response.json())
+    .then((response: VenueApiResponse) => {
+      setVenues(response.results);
+
+      // fetch image corresponding to venue fsq_id
+
+      Promise.all(
+        response.results.map((venue) => {
+          return fetch(
+            `https://api.foursquare.com/v3/places/${venue.fsq_id}/photos?limit=1&sort=NEWEST`,
+            options
+          )
+            .then((response) => response.json())
+            .then((response: VenuePhotoApiResponse[]) => {
+              const newestPhoto = response[0];
+
+              if (newestPhoto != null) {
+                const photoUrl = generatePhotoUrl(
+                  newestPhoto.prefix,
+                  newestPhoto.width,
+                  newestPhoto.height,
+                  newestPhoto.suffix
+                );
+
+                setVenuePhotos((currentPhotos: Photo[]) => [
+                  ...currentPhotos,
+                  { fsq_id: venue.fsq_id, url: photoUrl },
+                ]);
+              }
+            })
+
+            .catch((error) => {
+              console.error(error);
+            });
+        })
+      ).then(() => {
+        setIsLoading(false);
+      });
+    })
+
+    .catch((err) => {
+      console.error(err);
+      setIsLoading(false);
+      setHasError(true);
+    });
 }
