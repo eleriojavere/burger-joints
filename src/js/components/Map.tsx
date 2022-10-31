@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useVenues } from "../contex/VenuesContext";
 import GoogleMapReact from "google-map-react";
 import { addMarkers } from "../helpers/initMap";

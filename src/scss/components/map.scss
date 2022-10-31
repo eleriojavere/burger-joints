@@ -1,4 +1,13 @@
 #map {
   height: 400px;
   width: 100%;
+  margin-bottom: 1em;
+
+  div {
+    border-radius: 6px;
+  }
+
+  @media (max-width: 768px) {
+    height: 320px;
+  }
 }
