@@ -1,6 +1,6 @@
 import { useVenues } from "../contex/VenuesContext";
 import GoogleMapReact from "google-map-react";
-import { addMarkers } from "../helpers/initMap";
+import { addMarkers, drawCirleAroundBusStation } from "../helpers/initMap";
 
 export default function Map({
   googleMapsApiKey,
@@ -11,7 +11,7 @@ export default function Map({
 
   const defaultProps = {
     center: { lat: 58.378, lng: 26.7321 },
-    zoom: 14,
+    zoom: 13,
   };
 
   return (
@@ -22,6 +22,7 @@ export default function Map({
         defaultZoom={defaultProps.zoom}
         onGoogleApiLoaded={({ map }) => {
           addMarkers(map, venues);
+          drawCirleAroundBusStation(map);
         }}
         yesIWantToUseGoogleMapApiInternals
       />

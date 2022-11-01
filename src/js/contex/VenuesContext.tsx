@@ -26,22 +26,7 @@ export function VenuesProvider({ children }: { children: ReactElement }) {
 
     if (apiBaseUrl && apiKey) {
       setIsLoading(true);
-
-      const options = {
-        headers: {
-          accept: "application/json",
-          Authorization: apiKey,
-        },
-      };
-
-      fetchData(
-        apiBaseUrl,
-        setVenues,
-        options,
-        setVenuePhotos,
-        setIsLoading,
-        setHasError
-      );
+      fetchData(apiBaseUrl, apiKey);
     }
   }, []);
 
@@ -51,6 +36,63 @@ export function VenuesProvider({ children }: { children: ReactElement }) {
     hasError,
     venuePhotos,
   };
+
+  async function fetchData(apiBaseUrl: string, apiKey: string) {
+    const options = {
+      headers: {
+        accept: "application/json",
+        Authorization: apiKey,
+      },
+    };
+
+    await fetch(`${apiBaseUrl}/search?query=burger&near=Tartu`, options)
+      .then((response) => response.json())
+      .then((response: VenueApiResponse) => {
+        const venuesNotWithin1kmFromBusStation = filterVenues(response.results);
+        setVenues(venuesNotWithin1kmFromBusStation);
+
+        // fetch venue images corresponding to venue fsq_id
+
+        Promise.all(
+          venuesNotWithin1kmFromBusStation.map(async (venue) => {
+            return fetch(
+              `https://api.foursquare.com/v3/places/${venue.fsq_id}/photos?limit=1&sort=NEWEST`,
+              options
+            )
+              .then((response) => response.json())
+              .then((response: VenuePhotoApiResponse[]) => {
+                const newestPhoto = response[0];
+
+                if (newestPhoto != null) {
+                  const photoUrl = generatePhotoUrl(
+                    newestPhoto.prefix,
+                    newestPhoto.width,
+                    newestPhoto.height,
+                    newestPhoto.suffix
+                  );
+
+                  setVenuePhotos((currentPhotos: Photo[]) => [
+                    ...currentPhotos,
+                    { fsq_id: venue.fsq_id, url: photoUrl },
+                  ]);
+                }
+              })
+
+              .catch((error) => {
+                console.error(error);
+              });
+          })
+        ).then(() => {
+          setIsLoading(false);
+        });
+      })
+
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
+        setHasError(true);
+      });
+  }
 
   return (
     <VenuesContext.Provider value={value}>{children}</VenuesContext.Provider>
@@ -70,58 +112,52 @@ function generatePhotoUrl(
   return `${prefix}${width}x${height}${sufix}`;
 }
 
-async function fetchData(
-  apiBaseUrl: string,
-  setVenues: (response: Venue[]) => void,
-  options: { headers: { accept: string; Authorization: string } },
-  setVenuePhotos: (currentPhotos: any) => void,
-  setIsLoading: (value: boolean) => void,
-  setHasError: (value: boolean) => void
+function filterVenues(venues: Venue[]) {
+  const pointerLongitude = 58.378;
+  const pointerLatitude = 26.7321;
+  const radiusToExclude = 1000;
+  return venues.filter((venue) => {
+    return (
+      getPointerDistanceFromVenue(
+        venue.geocodes.main.latitude,
+        venue.geocodes.main.longitude,
+        pointerLongitude,
+        pointerLatitude
+      ) > radiusToExclude
+    );
+  });
+}
+
+function getPointerDistanceFromVenue(
+  venueLatitude: number,
+  venueLongitude: number,
+  pointerLatitude: number,
+  pointerLongitude: number
 ) {
-  await fetch(`${apiBaseUrl}/search?query=burger&near=Tartu`, options)
-    .then((response) => response.json())
-    .then((response: VenueApiResponse) => {
-      setVenues(response.results);
-
-      // fetch image corresponding to venue fsq_id
-
-      Promise.all(
-        response.results.map((venue) => {
-          return fetch(
-            `https://api.foursquare.com/v3/places/${venue.fsq_id}/photos?limit=1&sort=NEWEST`,
-            options
-          )
-            .then((response) => response.json())
-            .then((response: VenuePhotoApiResponse[]) => {
-              const newestPhoto = response[0];
-
-              if (newestPhoto != null) {
-                const photoUrl = generatePhotoUrl(
-                  newestPhoto.prefix,
-                  newestPhoto.width,
-                  newestPhoto.height,
-                  newestPhoto.suffix
-                );
-
-                setVenuePhotos((currentPhotos: Photo[]) => [
-                  ...currentPhotos,
-                  { fsq_id: venue.fsq_id, url: photoUrl },
-                ]);
-              }
-            })
-
-            .catch((error) => {
-              console.error(error);
-            });
-        })
-      ).then(() => {
-        setIsLoading(false);
-      });
-    })
-
-    .catch((err) => {
-      console.error(err);
-      setIsLoading(false);
-      setHasError(true);
-    });
+  const distance =
+    2 *
+    6371000 *
+    Math.asin(
+      Math.sqrt(
+        Math.pow(
+          Math.sin(
+            (pointerLatitude * (3.14159 / 180) -
+              venueLatitude * (3.14159 / 180)) /
+              2
+          ),
+          2
+        ) +
+          Math.cos(pointerLatitude * (3.14159 / 180)) *
+            Math.cos(venueLatitude * (3.14159 / 180)) *
+            Math.sin(
+              Math.pow(
+                (pointerLongitude * (3.14159 / 180) -
+                  venueLongitude * (3.14159 / 180)) /
+                  2,
+                2
+              )
+            )
+      )
+    );
+  return distance;
 }

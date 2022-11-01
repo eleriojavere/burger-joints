@@ -2,10 +2,10 @@
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(4, auto);
+  margin-bottom: 40px;
 
   .image-wrapper {
     position: relative;
-
     width: 100%;
     max-width: 316px;
     height: 100%;
