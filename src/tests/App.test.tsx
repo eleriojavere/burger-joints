@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import App from "../js/App";
-import { VenuesContext } from "../js/contex/VenuesContext";
+import { VenuesContext } from "../js/context/VenuesContext";
 
 describe("components/App", () => {
   const env = process.env;

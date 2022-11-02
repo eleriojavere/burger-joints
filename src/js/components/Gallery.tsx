@@ -1,4 +1,4 @@
-import { useVenues } from "../contex/VenuesContext";
+import { useVenues } from "../context/VenuesContext";
 
 export default function Gallery() {
   const { venuePhotos } = useVenues();

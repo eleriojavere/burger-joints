@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./js/App";
-import { VenuesProvider } from "./js/contex/VenuesContext";
+import { VenuesProvider } from "./js/context/VenuesContext";
 import reportWebVitals from "./reportWebVitals";
 import "./scss/entry.scss";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import Gallery from "./components/Gallery";
 import Map from "./components/Map";
-import { useVenues } from "./contex/VenuesContext";
+import { useVenues } from "./context/VenuesContext";
 
 function App() {
   const { hasError, isLoading } = useVenues();

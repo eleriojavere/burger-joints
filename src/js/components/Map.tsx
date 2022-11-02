@@ -1,4 +1,4 @@
-import { useVenues } from "../contex/VenuesContext";
+import { useVenues } from "../context/VenuesContext";
 import GoogleMapReact from "google-map-react";
 import { addMarkers, drawCirleAroundBusStation } from "../helpers/initMap";
 
