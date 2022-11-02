@@ -1,6 +1,12 @@
 # Burger app for hungry Qminderers
 
-Test assigment project for displaying burger joints in Tartu on a map and their latest picture.
+React app showing all burger joints in Tartu on a map and their latest picture.
+
+Generate Foursquare API key to fetch venues, instructions: https://location.foursquare.com/developer/docs/manage-api-keys
+
+Generate Google Maps API key to fetch venues, instructions: https://developers.google.com/maps/documentation/javascript/get-api-key
+
+Generate .env file from .env.example example file and add Foursquare API key to value for REACT_APP_FOURSQUARE_API_KEY variable and Google Maps API key to REACT_APP_GOOGLE_MAPS_API_KEY.
 
 # Getting Started with Create React App
 
