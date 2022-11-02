@@ -27,6 +27,8 @@ export function VenuesProvider({ children }: { children: ReactElement }) {
     if (apiBaseUrl && apiKey) {
       setIsLoading(true);
       fetchData(apiBaseUrl, apiKey);
+    } else {
+      setHasError(true);
     }
   }, []);
 
