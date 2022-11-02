@@ -1,8 +1,8 @@
 import { Venue } from "../interfaces/interfaces";
 
-export const addMarkers = (map: google.maps.Map, results: Venue[]) => {
-  results.map((venue) => {
-    return new google.maps.Marker({
+export const addMarkers = (map: google.maps.Map, venues: Venue[]) => {
+  venues.map((venue) => {
+    const marker = new google.maps.Marker({
       position: {
         lat: venue.geocodes.main.latitude,
         lng: venue.geocodes.main.longitude,
@@ -11,6 +11,17 @@ export const addMarkers = (map: google.maps.Map, results: Venue[]) => {
       clickable: true,
       title: venue.name,
     });
+
+    google.maps.event.addListener(marker, "click", () => {
+      createInfoWindowForMarker(
+        marker,
+        map,
+        venue.geocodes.main.latitude,
+        venue.geocodes.main.longitude
+      );
+    });
+
+    return marker;
   });
 };
 
@@ -27,4 +38,20 @@ export const drawCirleAroundBusStation = (map: google.maps.Map) => {
     },
     radius: 1000,
   });
+};
+
+const createInfoWindowForMarker = (
+  marker: google.maps.Marker,
+  map: google.maps.Map,
+  lat: number,
+  long: number
+) => {
+  const infoWindow = new google.maps.InfoWindow({
+    maxWidth: 350,
+    content: marker.getTitle(),
+    pixelOffset: new google.maps.Size(-10, -25),
+  });
+
+  infoWindow.open(map);
+  infoWindow.setPosition(new google.maps.LatLng(lat, long));
 };

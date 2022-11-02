@@ -25,7 +25,7 @@ export default function Map({
           drawCirleAroundBusStation(map);
         }}
         yesIWantToUseGoogleMapApiInternals
-      />
+      ></GoogleMapReact>
     </div>
   );
 }
